@@ -1,0 +1,150 @@
+/* 컨테이너 (유리 느낌 + 노트 배경과 자연스러운 톤) */
+.sidebar-wrap {
+  width: 20%;
+  min-width: 220px;
+  position: sticky;
+  top: 64px; /* 헤더 높이 만큼 */
+  align-self: flex-start;
+
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(3px);
+  border-right: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04) inset;
+  padding: 16px 14px;
+  border-radius: 0 12px 12px 0;
+}
+
+/* 마운트 애니메이션: 왼쪽 → 오른쪽 */
+.sidebar-slide {
+  animation: slideRight 0.8s cubic-bezier(.22,1,.36,1) forwards;
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+@keyframes slideRight {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 섹션 */
+.side-section + .side-section {
+  margin-top: 18px;
+}
+
+.side-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin: 0 6px 8px;
+}
+
+/* 리스트/아이템 */
+.side-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.side-link {
+  display: block;
+  padding: 10px 12px;
+  margin: 4px 2px;
+  border-radius: 10px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.side-link:hover {
+  transform: translateX(4px);
+  background: rgba(0,0,0,0.05);
+  color: #111;
+}
+
+.side-link.active {
+  background: #111;
+  color: #fff;
+}
+
+/* Post 토글 */
+.post-toggle {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 4px 2px 2px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.04);
+  color: #222;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.post-toggle:hover {
+  background: rgba(0,0,0,0.06);
+  transform: translateX(2px);
+}
+
+/* 토글 아이콘 */
+.chev {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform .25s ease;
+  opacity: .8;
+}
+
+.chev.open {
+  transform: rotate(135deg);
+}
+
+/* 접기/펼치기 높이 애니메이션 */
+.collapse {
+  overflow: hidden;
+  max-height: 0;               /* JS에서 scrollHeight로 열어줌 */
+  transition: max-height .35s ease;
+}
+
+/* 반응형 (폭 좁을 때) */
+@media (max-width: 960px) {
+  .sidebar-wrap {
+    width: 240px; /* 고정폭로 사용 */
+  }
+}
+
+.collapse-btn, .expand-btn {
+  display: inline-block;
+  margin: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.05);
+  font-size: 24px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.collapse-btn:hover, .expand-btn:hover {
+  background: rgba(0,0,0,0.1);
+}
+
+.sidebar-collapsed {
+  width: 58px;
+  min-width: 48px;
+  background: transparent;
+  border-right: 1px solid rgba(0,0,0,0.05);
+}

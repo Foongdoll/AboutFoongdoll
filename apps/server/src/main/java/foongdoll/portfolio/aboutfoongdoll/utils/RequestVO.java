@@ -4,26 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
-public class RequestVO {
-
-    private Map<String, Object> params = new HashMap<>();
+@NoArgsConstructor @Builder
+public class RequestVO extends HashMap<String, Object> {
 
     /**
      * 파라미터 추가
      */
-    public void put(String key, Object value) {
-        params.put(key, value);
+    @Override
+    public Object put(String key, Object value) {
+        return super.put(key, value); // ✅ super로 호출
     }
 
     /**
      * 파라미터 조회
      */
-    public Object get(String key) {
-        return params.get(key);
+    @Override
+    public Object get(Object key) {
+        return super.get(key); // ✅ super로 호출
     }
 
     /**
@@ -31,7 +30,7 @@ public class RequestVO {
      */
     public <T> T getAs(String key, Class<T> type) {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(params.get(key), type);
+        return mapper.convertValue(super.get(key), type);
     }
 
     /**
@@ -39,6 +38,6 @@ public class RequestVO {
      */
     public <T> T toDTO(Class<T> type) {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(params, type);
+        return mapper.convertValue(this, type);
     }
 }
