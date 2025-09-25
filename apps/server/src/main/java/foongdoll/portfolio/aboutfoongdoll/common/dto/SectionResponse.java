@@ -14,4 +14,5 @@ public class SectionResponse {
     private String header;
     private String content;
     private String footer;
+    private Object metadata;
 }

@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
 
     Optional<Resume> findTopByOrderByIdAsc();
+
+    Optional<Resume> findByMemberCode(String memberCode);
 }

@@ -6,10 +6,13 @@ import foongdoll.portfolio.aboutfoongdoll.auth.repository.AuthRepository;
 import foongdoll.portfolio.aboutfoongdoll.auth.service.AuthService;
 import foongdoll.portfolio.aboutfoongdoll.utils.RequestVO;
 import foongdoll.portfolio.aboutfoongdoll.utils.ResponseVO;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +22,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
 
     @Override
-    public Object login(RequestVO vo) {
+    public Object login(RequestVO vo, HttpSession session) {
         String id = vo.get("username").toString();
         String pwd = vo.get("password").toString();
 
@@ -32,8 +35,9 @@ public class AuthServiceImpl implements AuthService {
             return ResponseVO.fail("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        // 3. 로그인 성공 → JWT 발급 or 세션 처리 (여기서는 단순 응답)
-        return ResponseVO.ok("로그인 성공: " + user.getUsername());
+        String uuid = UUID.randomUUID().toString();
+        session.setAttribute("token", uuid);
+        return uuid;
     }
 
     @Override
