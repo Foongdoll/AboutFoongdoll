@@ -1,4 +1,4 @@
-import { NavLink, Link, useSearchParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useRef, useState, useEffect } from "react"
 import "../../styles/Sidebar.css"
 import { useMenu } from "../provider/MenuProvider"
@@ -13,17 +13,15 @@ const postCategories = [
 
 // 이력서 섹션(해시로 이동)
 const resumeSections = [
-    { key: "personal", label: "인적사항", hash: "#personal" },
+    { key: "personal", label: "자기소개", hash: "#personal" },    
+    { key: "career", label: "경력", hash: "#career" },
     { key: "education", label: "학력", hash: "#education" },
-    { key: "career", label: "경력(요약)", hash: "#career" },
 ]
 
 // 회사 목록(경험 상세 필터)
 const companies = [
-    { key: "acme", label: "ACME Corp" },
-    { key: "contoso", label: "Contoso" },
-    { key: "wing", label: "Wing Studio" },
-    // 필요에 맞게 추가
+    { key: "1", label: "이노베이션티(주)" },
+    { key: "2", label: "울림(주)" },        
 ]
 
 interface SidebarProps {

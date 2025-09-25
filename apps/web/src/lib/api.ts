@@ -15,9 +15,9 @@ async function request<T = any>(config: AxiosRequestConfig): Promise<T> {
   instance.interceptors.request.use(
     (cfg) => {
       // 예: 토큰 주입
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem("token");
       if (token) {
-        cfg.headers.Authorization = `Bearer ${token}`;
+        cfg.headers.Authorization = `${token}`;
       }
       return cfg;
     },
@@ -27,10 +27,9 @@ async function request<T = any>(config: AxiosRequestConfig): Promise<T> {
   // 응답 인터셉터
   instance.interceptors.response.use(
     (res) => res.data,
-    async (error) => {
-      // 예: 토큰 만료 처리
+    async (error) => {      
       if (error.response?.status === 401) {
-        console.warn("Unauthorized - redirect to login or refresh token");
+        console.warn("Unauthorized - redirect to login or ref resh token");
       }
       return Promise.reject(error);
     }
@@ -61,3 +60,5 @@ export function patch<T = any>(url: string, data?: any, config?: AxiosRequestCon
 export function del<T = any>(url: string, config?: AxiosRequestConfig) {
   return request<T>({ method: "DELETE", url, ...config });
 }
+
+export type ResType = {"success": boolean; "data": any; "message"?: string};

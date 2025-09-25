@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { post } from "../lib/api"  // 앞에서 만든 api.ts 활용
+import { post, type ResType } from "../lib/api"  // 앞에서 만든 api.ts 활용
 
 const Login = () => {
   const navigate = useNavigate()
@@ -16,11 +16,15 @@ const Login = () => {
     e.preventDefault()
     try {
 
-        console.log(form);
-      const res = await post<{ token: string }>("/auth/login", form)
-      // 로그인 성공 시 토큰 저장
-      localStorage.setItem("accessToken", res.token)
-      navigate("/") // 홈이나 원하는 페이지로 이동
+      const res = await post<ResType>("/auth/login", form)
+
+      if (res.success) {
+        // 로그인 성공 시 토큰 저장
+        localStorage.setItem("token", res.data)
+        navigate("/") // 홈이나 원하는 페이지로 이동
+      } else {
+        alert('로그인에 실패했습니다. 아이디/비밀번호를 확인하세요.');
+      }
     } catch (err: any) {
       setError("로그인에 실패했습니다. 아이디/비밀번호를 확인하세요.")
     }
