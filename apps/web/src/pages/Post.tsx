@@ -4,6 +4,17 @@ import { useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { get, post } from "../lib/api";
 import type { ApiResponse } from "../lib/types";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import rehypeRaw from "rehype-raw";
+
+import type { Components } from "react-markdown";
+
+const markdownComponents: Components = {
+  a: ({ node, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer" />
+  ),
+};
 
 type PostSummary = {
   id: number;
@@ -11,6 +22,7 @@ type PostSummary = {
   summary?: string;
   category: string;
   publishedAt?: string;
+  content?: string; // ✅ 목록에서 post.content 사용을 위해 optional로 추가
 };
 
 type PostFormData = {
@@ -56,14 +68,11 @@ const Post = () => {
     if (typeof window === "undefined") {
       return;
     }
-
     const syncAuth = () => {
       setIsAuthenticated(Boolean(localStorage.getItem("token")));
     };
-
     syncAuth();
     window.addEventListener("storage", syncAuth);
-
     return () => {
       window.removeEventListener("storage", syncAuth);
     };
@@ -111,23 +120,18 @@ const Post = () => {
   }, [fetchPosts, refreshKey]);
 
   useEffect(() => {
-    if (!previewModalOpen) {
-      return;
-    }
-
+    if (!previewModalOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         setPreviewModalOpen(false);
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [previewModalOpen]);
-
 
   const categoryLabel = requestCategory ?? "all";
 
@@ -148,15 +152,11 @@ const Post = () => {
     setEditorOpen(false);
     setPreviewModalOpen(false);
   };
+
   const previewMarkdown = form.content.trim() ? form.content : "_Draft content will render here._";
 
-  const openPreviewModal = () => {
-    setPreviewModalOpen(true);
-  };
-
-  const closePreviewModal = () => {
-    setPreviewModalOpen(false);
-  };
+  const openPreviewModal = () => setPreviewModalOpen(true);
+  const closePreviewModal = () => setPreviewModalOpen(false);
 
   const handlePreviewKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -164,7 +164,6 @@ const Post = () => {
       openPreviewModal();
     }
   };
-
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -175,7 +174,6 @@ const Post = () => {
       setSubmitError("Please fill the title column.");
       return;
     }
-
     if (!form.content.trim()) {
       setSubmitError("Write something in the notes column.");
       return;
@@ -209,13 +207,8 @@ const Post = () => {
     }
   };
 
-  if (loading) {
-    return <div className="p-6 text-neutral-500">Loading posts...</div>;
-  }
-
-  if (error) {
-    return <div className="p-6 text-neutral-500">{error}</div>;
-  }
+  if (loading) return <div className="p-6 text-neutral-500">Loading posts...</div>;
+  if (error) return <div className="p-6 text-neutral-500">{error}</div>;
 
   return (
     <>
@@ -264,7 +257,14 @@ const Post = () => {
                     onKeyDown={handlePreviewKeyDown}
                   >
                     <span className="cornell__preview-label">Preview</span>
-                    <ReactMarkdown className="cornell__markdown" aria-live="polite">
+                    {/* ✅ 미리보기에도 동일 플러그인 + 컴포넌트 */}
+                    <ReactMarkdown
+                      className="cornell__markdown"
+                      aria-live="polite"
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={markdownComponents}
+                    >
                       {previewMarkdown}
                     </ReactMarkdown>
                   </div>
@@ -317,7 +317,14 @@ const Post = () => {
                     onKeyDown={handlePreviewKeyDown}
                   >
                     <span className="cornell__preview-label">Preview</span>
-                    <ReactMarkdown className="cornell__markdown" aria-live="polite">
+                    {/* ✅ 미리보기에도 동일 플러그인 + 컴포넌트 */}
+                    <ReactMarkdown
+                      className="cornell__markdown"
+                      aria-live="polite"
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={markdownComponents}
+                    >
                       {previewMarkdown}
                     </ReactMarkdown>
                   </div>
@@ -351,7 +358,7 @@ const Post = () => {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="post-editor__primary" disabled={submitting}>
+                    <button type="submit" className="post-editor__primary" disabled={submitting}>
                     {submitting ? "Saving..." : "Save"}
                   </button>
                 </div>
@@ -369,7 +376,13 @@ const Post = () => {
                   </button>
                 </header>
                 <div className="preview-modal__body">
-                  <ReactMarkdown className="preview-modal__markdown">
+                  {/* ✅ 모달 미리보기에도 동일 플러그인 + 컴포넌트 */}
+                  <ReactMarkdown
+                    className="preview-modal__markdown"
+                    remarkPlugins={[remarkGfm, remarkBreaks]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={markdownComponents}
+                  >
                     {previewMarkdown}
                   </ReactMarkdown>
                 </div>
@@ -414,9 +427,34 @@ const Post = () => {
             {posts.map((post) => (
               <li key={post.id} className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
                 <h3 className="text-xl font-semibold text-neutral-800">{post.title}</h3>
-                {post.summary && <p className="mt-2 text-neutral-600">{post.summary}</p>}
+
+                {/* 요약도 마크다운이라면 이렇게 */}
+                {post.summary && (
+                  <div className="mt-2 prose prose-neutral max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={markdownComponents}
+                    >
+                      {post.summary}
+                    </ReactMarkdown>
+                  </div>
+                )}
+
+                {post.content && (
+                  <article className="mt-4 prose prose-neutral max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkBreaks]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={markdownComponents}
+                    >
+                      {post.content}
+                    </ReactMarkdown>
+                  </article>
+                )}
+
                 <div className="mt-3 text-sm text-neutral-400">
-                  <span className="mr-3">{post.category}</span>
+                  <span className="mr-3">{post.category ?? "카테고리 없음"}</span>
                   {post.publishedAt && <span>{post.publishedAt}</span>}
                 </div>
               </li>
