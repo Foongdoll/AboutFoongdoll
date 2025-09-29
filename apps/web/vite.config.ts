@@ -2,16 +2,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig({
+export default defineConfig({  
+  base: "/aboutfoongdoll/",
   plugins: [react(), tailwindcss()],
   server: {
-    proxy: {
-      // 예: /api로 들어오는 요청을 http://localhost:8080 으로 프록시
+    proxy: {     
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://3.38.237.211:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), 
       },
     },
   },
 })
+
+//  target: 'http://54.180.149.30:8080',
+//  target: 'http://localhost:8080',

@@ -21,7 +21,7 @@ public class UuidAuthFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-        if (HttpMethod.OPTIONS.matches(method) || HttpMethod.GET.matches(method) || "/api/auth/login".equals(uri)) {
+        if (HttpMethod.OPTIONS.matches(method) || HttpMethod.GET.matches(method) || "/api/auth/login".equals(uri) || "/api/auth/join".equals(uri)) {
             filterChain.doFilter(request, response);
             return;
         }

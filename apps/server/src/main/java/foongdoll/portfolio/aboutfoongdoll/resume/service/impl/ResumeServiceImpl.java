@@ -22,7 +22,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     private static final String HEADER_TEMPLATE =
             "<div class='pt-2 pb-3 px-8'>"
-                    + "  <h2 class='text-2xl font-bold tracking-tight'>이력서</h2>"
+                    + "  <h2 class='text-2xl font-bold tracking-tight' id=\"career\">이력서</h2>"
                     + "</div>";
 
     // 연락처 라인

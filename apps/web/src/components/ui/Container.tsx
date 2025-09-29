@@ -4,7 +4,7 @@ const NoteBackground = ({ children }: { children: ReactNode }) => {
 
     return (
 
-        <div className="relative min-h-screen overflow-hidden bg-[rgb(248,246,238)]">
+        <div className="relative min-h-screen bg-[rgb(248,246,238)]">
             {/* 종이 배경 레이어 */}
             <div className="absolute inset-0 pointer-events-none">
                 {/* 공책 가로줄 */}

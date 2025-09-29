@@ -305,7 +305,7 @@ const Resume = () => {
         <Card
           Header={
             <div className="resume-heading">
-              <span className="resume-heading__label">Notebook Resume</span>
+              <span className="resume-heading__label" id="personal">Notebook Resume</span>
               {displayName && <h1 className="resume-heading__title">{displayName}</h1>}
               {highlightBadges.length > 0 && (
                 <div className="flex flex-col gap-2">
@@ -326,7 +326,7 @@ const Resume = () => {
                 </div>
               )}
               {summary && (
-                <p id="personal" className="resume-heading__summary">
+                <p className="resume-heading__summary">
                   {summary}
                 </p>
               )}

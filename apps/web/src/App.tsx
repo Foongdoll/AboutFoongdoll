@@ -10,6 +10,7 @@ import NoteBackground from './components/ui/Container';
 import { useState } from 'react';
 import Login from './pages/Login';
 
+
 const Layout = () => {
   const { menu } = useMenu();
   const [sidebarOpen, setSidebarOpen] = useState(true); // ✅ 사이드바 열림 여부
@@ -20,14 +21,21 @@ const Layout = () => {
 
       <div className="flex">
         {/* 사이드바 */}
-        {menu === "main" ? null : (
-          <Sidebar open={sidebarOpen} toggle={() => setSidebarOpen(o => !o)} />
+        {menu !== "resume" ? null : (
+          <span style={{ position: "fixed", left: 50, zIndex: 1000 }}><Sidebar open={sidebarOpen} toggle={() => setSidebarOpen(o => !o)} /></span>
         )}
 
         {/* 메인 컨텐츠 영역 */}
-        <div className={menu === "main" ? "w-screen" : sidebarOpen ? "w-[80%]" : "w-full"}>
+        <div className={menu === "main" ? "w-screen" : sidebarOpen ? "w-full" : "w-full"} style={{overflow: "auto"}}>
           <Outlet />
         </div>
+        <button
+          type="button"
+          style={{ position: "fixed", bottom: 40, right: 50, border: "solid 2px black", borderRadius: 20, padding: 15 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          올라가기
+        </button>
       </div>
     </NoteBackground>
   );
@@ -35,7 +43,7 @@ const Layout = () => {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/aboutfoongdoll">
       <MenuProvider>{/* ✅ Router 내부에서 useLocation 사용 가능 */}
         <Routes>
           <Route path="/" element={<Layout />}>

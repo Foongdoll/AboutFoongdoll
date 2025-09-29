@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,11 +28,24 @@ public class AuthServiceImpl implements AuthService {
         String pwd = vo.get("password").toString();
 
         // 1. 사용자 조회
-        User user = authRepository.findByUsername(id)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        Optional<User> user = authRepository.findByUsername(id);
+        if(!user.isPresent()){
+            // 2. 비밀번호 암호화
+            String encodedPwd = pe.encode("1234");
+
+            // 3. 엔티티 생성 및 저장
+            User u = User.builder()
+                    .username("healim5028")
+                    .password(encodedPwd)
+                    .role("ADMIN")     // 포폴 사이트라 관리자 권한 고정
+                    .enabled(true)
+                    .build();
+
+            return authRepository.save(u);
+        }
 
         // 2. 비밀번호 검증
-        if (!pe.matches(pwd, user.getPassword())) {
+        if (!pe.matches(pwd, user.get().getPassword())) {
             return ResponseVO.fail("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
@@ -47,17 +61,6 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
         }
 
-        // 2. 비밀번호 암호화
-        String encodedPwd = pe.encode(password);
 
-        // 3. 엔티티 생성 및 저장
-        User user = User.builder()
-                .username(username)
-                .password(encodedPwd)
-                .role("ADMIN")     // 포폴 사이트라 관리자 권한 고정
-                .enabled(true)
-                .build();
-
-        authRepository.save(user);
     }
 }

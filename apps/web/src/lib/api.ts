@@ -1,9 +1,9 @@
 import axios, { type AxiosRequestConfig } from "axios";
 
-// ✅ 공통 axios 호출 함수
+// ✅ 공통 axios 호출 함수 3.38.237.211
 async function request<T = any>(config: AxiosRequestConfig): Promise<T> {
   const instance = axios.create({
-    baseURL: import.meta.env.API_BASE_URL || "http://localhost:8080/api",
+    baseURL: "http://3.38.237.211:8080/api", 
     timeout: 10000,
     withCredentials: true,
     headers: {

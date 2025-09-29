@@ -53,12 +53,12 @@ const Sidebar = ({ open, toggle }: SidebarProps) => {
         <aside className="sidebar-slide sidebar-wrap">
             {menu === "resume" && (
                 <nav className="side-section">
-                    <h3 className="side-title">Resume <button onClick={toggle} className="collapse-btn">접어두기</button></h3>
+                    <h3 className="side-title">Resume <button onClick={toggle} className="collapse-btn">접어두기</button></h3>                    
                     <ul className="side-list">
                         {resumeSections.map(s => (
                             <li key={s.key}>
                                 {/* 같은 페이지 내 해시 이동 */}
-                                <a href={`/resume${s.hash}`} className="side-link">
+                                <a href={`/aboutfoongdoll/resume${s.hash}`} className="side-link">
                                     {s.label}
                                 </a>
                             </li>
@@ -74,7 +74,7 @@ const Sidebar = ({ open, toggle }: SidebarProps) => {
                         {companies.map(c => (
                             <li key={c.key}>
                                 {/* 회사별 쿼리로 메인 필터 */}
-                                <Link to={`/experience?company=${encodeURIComponent(c.key)}`} className="side-link">
+                                <Link to={`/aboutfoongdoll/experience?company=${encodeURIComponent(c.key)}`} className="side-link">
                                     {c.label}
                                 </Link>
                             </li>
@@ -100,7 +100,7 @@ const Sidebar = ({ open, toggle }: SidebarProps) => {
                             {postCategories.map(cat => (
                                 <li key={cat.key}>
                                     <Link
-                                        to={`/post?category=${encodeURIComponent(cat.key)}`}
+                                        to={`/aboutfoongdoll/post?category=${encodeURIComponent(cat.key)}`}
                                         className="side-link"
                                     >
                                         {cat.label}
