@@ -291,13 +291,7 @@ body:not(.intro-active) #root {
   padding: clamp(1.75rem, 2vw + 1.25rem, 3rem);
   border-radius: 28px;
   background: #fdfcf7;
-  background-image: repeating-linear-gradient(
-    180deg,
-    rgba(148, 163, 184, 0.16) 0px,
-    rgba(148, 163, 184, 0.16) 1px,
-    transparent 1px,
-    transparent 36px
-  );
+  background-image: repeating-linear-gradient(180deg, rgba(148, 163, 184, 0.16) 0px, rgba(148, 163, 184, 0.16) 1px, transparent 1px, transparent 36px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 24px 55px rgba(15, 23, 42, 0.15);
   overflow: hidden;
 }
@@ -461,13 +455,7 @@ body:not(.intro-active) #root {
   padding: clamp(1.8rem, 2vw + 1.3rem, 3.1rem);
   border-radius: 30px;
   background: #fffdf5;
-  background-image: repeating-linear-gradient(
-    180deg,
-    rgba(254, 240, 138, 0.14) 0px,
-    rgba(254, 240, 138, 0.14) 1px,
-    transparent 1px,
-    transparent 34px
-  );
+  background-image: repeating-linear-gradient(180deg, rgba(254, 240, 138, 0.14) 0px, rgba(254, 240, 138, 0.14) 1px, transparent 1px, transparent 34px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 24px 55px rgba(15, 23, 42, 0.12);
   overflow: hidden;
 }
@@ -602,6 +590,7 @@ body:not(.intro-active) #root {
   font-size: 0.9rem;
   font-weight: 500;
 }
+
 .resume-heading__skills-label {
   font-size: 0.75rem;
   letter-spacing: 0.25em;
@@ -819,9 +808,7 @@ body:not(.intro-active) #root {
   top: 0;
   bottom: 0;
   left: 50%;
-
   width: clamp(780px, 75vw, 1280px);
-  
   transform: translateX(110%);
   transform-origin: center;
   transition: transform 420ms cubic-bezier(.22, 1, .36, 1);
@@ -876,13 +863,7 @@ body:not(.intro-active) #root {
   position: absolute;
   inset: 16px 22px 16px auto;
   width: 1px;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(148, 163, 184, 0.2),
-    rgba(148, 163, 184, 0.2) 12px,
-    rgba(148, 163, 184, 0.08) 12px,
-    rgba(148, 163, 184, 0.08) 24px
-  );
+  background: repeating-linear-gradient(180deg, rgba(148, 163, 184, 0.2), rgba(148, 163, 184, 0.2) 12px, rgba(148, 163, 184, 0.08) 12px, rgba(148, 163, 184, 0.08) 24px);
   opacity: 0.5;
   pointer-events: none;
 }
@@ -985,7 +966,7 @@ body:not(.intro-active) #root {
 
 .cornell__keywords {
   grid-row: 3;
-  grid-column: 1 / 2;
+  grid-column: 2 / 2;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0.45rem;
@@ -998,8 +979,7 @@ body:not(.intro-active) #root {
 }
 
 .cornell__notes {
-  grid-row: 3;
-  grid-column: 2 / -1;
+  width: 100%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0.65rem;
@@ -1018,6 +998,7 @@ body:not(.intro-active) #root {
   text-transform: uppercase;
   color: #94a3b8;
   font-weight: 600;
+  white-space: pre-wrap;
 }
 
 .cornell__input,
@@ -1060,7 +1041,6 @@ body:not(.intro-active) #root {
 .cornell__textarea--summary {
   min-height: 180px;
 }
-
 
 .post-editor__footer {
   display: flex;
@@ -1137,7 +1117,7 @@ body:not(.intro-active) #root {
   }
 
   .cornell__notes {
-    grid-template-rows: auto minmax(200px, 1fr) minmax(160px, 1fr);
+    /* grid-template-rows: auto minmax(200px, 1fr) minmax(160px, 1fr); */
   }
 }
 
@@ -1148,118 +1128,73 @@ body:not(.intro-active) #root {
   }
 }
 
-
-
-
-
-.cornell__editor {
-  --cornell-editor-glow: 0 0 0 0 rgba(59, 130, 246, 0);
-  border-radius: 0.9rem;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: rgba(247, 245, 238, 0.96);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), var(--cornell-editor-glow);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-height: 360px;
-  transition: border 200ms ease, box-shadow 200ms ease, background 200ms ease;
-}
-
-.cornell__editor:focus-within {
-  border-color: rgba(59, 130, 246, 0.5);
-  --cornell-editor-glow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-  background: rgba(255, 255, 255, 0.98);
-}
-
-.cornell__editor[data-typing="true"] {
-  animation: cornell-editor-typing 0.6s ease-in-out infinite alternate;
-  border-color: rgba(59, 130, 246, 0.55);
-}
-
-@keyframes cornell-editor-typing {
-  0% {
-    --cornell-editor-glow: 0 0 0 2px rgba(96, 165, 250, 0.18);
-  }
-
-  100% {
-    --cornell-editor-glow: 0 0 0 6px rgba(37, 99, 235, 0.22);
-  }
-}
-
+/* ===== MDEditor: 입력층 ↔ 미러층 완전 정렬 강제 ===== */
 .cornell__editor .w-md-editor {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  width: 100%;
-  color: #1f2937;
+  --md-e-font: "Nanum Pen Script", cursive;
+  --md-e-size: 16px;
+  --md-e-line: 26px;    /* px 고정(반올림 오차 제거) */
+  --md-e-pad-v: 14px;
+  --md-e-pad-h: 16px;
 }
 
-.cornell__editor .w-md-editor-toolbar {
-  background: transparent;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
-  padding: 0.35rem 0.6rem;
+/* 입력층 & 미러층 기본 */
+.cornell__editor .w-md-editor-text-pre,
+.cornell__editor .w-md-editor-text-input {
+  font-family: var(--md-e-font) !important;
+  font-size: var(--md-e-size) !important;
+  line-height: var(--md-e-line) !important;
+  letter-spacing: 0 !important;
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
+  padding: var(--md-e-pad-v) var(--md-e-pad-h) !important;
+  box-sizing: border-box !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  tab-size: 4 !important;
+  background: transparent !important;
+  margin: 0 !important;
+  min-height: 280px;
 }
 
-.cornell__editor .w-md-editor-toolbar ul {
-  gap: 0.25rem;
+/* ✅ 미러층 내부 토큰(span, code)까지 동일 타이포 강제 */
+.cornell__editor .w-md-editor-text-pre,
+.cornell__editor .w-md-editor-text-pre * {
+  font-family: var(--md-e-font) !important;
+  font-size: var(--md-e-size) !important;
+  line-height: var(--md-e-line) !important;
+  letter-spacing: 0 !important;
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
+  white-space: inherit !important;
+  word-break: inherit !important;
+  overflow-wrap: inherit !important;
 }
 
-.cornell__editor .w-md-editor-toolbar li button {
-  border-radius: 0.5rem;
-  color: #475569;
-  transition: background 150ms ease, color 150ms ease;
+/* 일부 테마가 code에 monospace/다른 line-height를 주는 것 차단 */
+.cornell__editor .w-md-editor-text-pre code {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
 }
 
-.cornell__editor .w-md-editor-toolbar li button:hover,
-.cornell__editor .w-md-editor-toolbar li button:focus-visible {
-  background: rgba(59, 130, 246, 0.12);
-  color: #1d4ed8;
+/* 입력층 개별 스타일 */
+.cornell__editor .w-md-editor-text-input {
+  color: #1f2937 !important;
+  caret-color: #dc2626 !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 래퍼 여백 간섭 제거(겹침 기준 통일) */
+.cornell__editor .w-md-editor-text {
+  padding: 0 !important;
 }
 
 .cornell__editor .w-md-editor-content,
 .cornell__editor .w-md-editor-input,
 .cornell__editor .w-md-editor-preview {
-  background: transparent;
-}
-
-.cornell__editor .w-md-editor-text,
-.cornell__editor .w-md-editor-text-pre {
-  background: transparent;
-}
-
-.cornell__editor .w-md-editor-text {
-  padding: 0;
-}
-
-.cornell__editor .w-md-editor-text-pre,
-.cornell__editor .w-md-editor-text-input {
-  padding: 0.85rem 1rem;
-  font-size: 0.96rem;
-  line-height: 1.65;
-}
-
-.cornell__editor .w-md-editor-text-pre {
-  min-height: 280px;
-}
-
-.cornell__editor .w-md-editor-text-input {
-  background: transparent;
-  color: #1f2937;
-  font-size: 0.96rem;
-  line-height: 1.65;
-  padding: 0.85rem 1rem;
-  min-height: 280px;
-  caret-color: #dc2626;
-}
-
-.cornell__editor .w-md-editor-text-input::placeholder {
-  color: rgba(100, 116, 139, 0.8);
-}
-
-.cornell__editor .wmde-markdown {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #1f2937;
+  background: transparent !important;
 }
 
 .post-editor__header-actions {
@@ -1517,4 +1452,178 @@ body:not(.intro-active) #root {
   color: inherit; /* 테마에서 지정한 색이 span 토큰에 적용됨 */
 }
 
+.md-editor {
+  background: transparent;
+}
 
+/* === Pager (이전 | 현재 | 다음) === */
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.pager__btn,
+.pager__page {
+  min-width: 64px;
+  height: 40px;
+  padding: 0 14px;
+  border: 2px solid #111;         /* 스샷처럼 진한 테두리 */
+  border-radius: 12px;             /* 둥근 사각 */
+  background: #fff;
+  box-shadow: 0 2px 0 #111;        /* 손그림 느낌의 음영 */
+  font-weight: 700;
+  line-height: 36px;
+  text-align: center;
+}
+
+.pager__page {
+  min-width: 40px;
+  width: 40px;                     /* 가운데 숫자 버튼처럼 */
+  background: #e5e7eb;             /* 회색 배경 */
+}
+
+.pager__btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #111;          /* 눌림 효과 */
+}
+
+.pager__btn[disabled] {
+  opacity: .4;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* MDEditor 커서 어긋남 방지: 입력/미러 타이포를 완전히 동일화 */
+.cornell__editor .w-md-editor {
+  --md-editor-font-size: 16px; /* MDEditor 내장 폰트 크기 변수 */
+}
+
+.cornell__editor .w-md-editor-text-pre,
+.cornell__editor .w-md-editor-text-input {
+  /* 폰트 메트릭: 반드시 동일 */
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", "맑은 고딕", sans-serif;
+  font-size: 16px;              /* == var(--md-editor-font-size) */
+  line-height: 1.7;
+  letter-spacing: 0;            /* 편집/미러 모두 0 */
+  font-variant-ligatures: none; /* 합자 끔 → 폭 안정 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* 공간 메트릭: 반드시 동일 */
+  padding: 14px 16px;           /* input/pre 모두 동일 패딩 */
+  box-sizing: border-box;
+  white-space: pre-wrap;         /* 줄바꿈 전략 동일 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  tab-size: 4;                   /* 탭 폭 동일화 */
+}
+
+/* 일부 테마가 pre에만 monospace 강제하는 걸 무력화 */
+.cornell__editor .w-md-editor-text-pre code {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+}
+
+/* 입력창(실제 textarea)도 같은 규칙 강제 */
+.cornell__editor .w-md-editor-text-input {
+  background: transparent;
+  color: #1f2937;
+  caret-color: #dc2626;
+}
+
+/* ====== 미리보기: 에디터 옆에 나란히 띄우기 ====== */
+.post-preview-pane {
+  position: fixed;
+  top: 0;
+  right: 0;               /* 우측 고정 */
+  height: 100%;
+  width: clamp(420px, 36vw, 640px); /* 화면 비율에 맞게 */
+  border-left: 1px solid #e5e7eb;
+  background: #fff;
+  box-shadow: -6px 0 24px rgba(0, 0, 0, .08);
+  z-index: 1202;
+  display: flex;
+  flex-direction: column;
+
+  /* 작성 폼을 가리지 않고 옆에 붙도록 */
+  transform: translateX(100%);
+  transition: transform .25s ease, opacity .25s ease;
+  opacity: 0;
+}
+
+.post-preview-pane--open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* 본문은 스크롤 가능 */
+.post-preview-pane__body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 반응형: 좁은 화면에서는 모달처럼 */
+@media (max-width: 900px) {
+  .post-preview-pane {
+    right: 50%;
+    transform: translate(50%, 100%);
+    width: min(92vw, 560px);
+    height: min(60vh, 520px);
+    top: auto;
+    bottom: 24px;
+    border-left: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 28px 48px rgba(0, 0, 0, .18);
+  }
+
+  .post-preview-pane--open {
+    transform: translate(50%, 0);
+  }
+}
+
+.cornell__keywords,
+.cornell__notes {
+  grid-column: 1 / -1 !important; /* ✅ 한 줄 전체 차지 */
+}
+
+/* cornell__editor 기본 박스 */
+.cornell__editor {
+  border-radius: 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(247, 245, 238, 0.85); /* ✅ 다른 input과 맞춤 */
+  transition: border 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  overflow: hidden;
+}
+
+/* focus 들어오면 cornell__editor 전체 박스가 하얀색 */
+.cornell__editor:focus-within {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  background: rgba(255, 255, 255, 0.94); /* ✅ 클릭 시 하얀색 */
+}
+
+/* ✅ 내부 MDEditor 배경을 모두 투명 처리 */
+.cornell__editor .w-md-editor,
+.cornell__editor .w-md-editor-toolbar,
+.cornell__editor .w-md-editor-content,
+.cornell__editor .w-md-editor-input,
+.cornell__editor .w-md-editor-preview {
+  background: transparent !important;
+}
+
+.post_list {
+  padding: 150px;
+}
+
+@media (max-width: 710px) {
+  .post_list {
+    padding: 85px;
+  }
+}
