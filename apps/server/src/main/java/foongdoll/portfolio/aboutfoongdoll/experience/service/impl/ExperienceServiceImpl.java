@@ -1,6 +1,7 @@
 package foongdoll.portfolio.aboutfoongdoll.experience.service.impl;
 
 import foongdoll.portfolio.aboutfoongdoll.common.dto.SectionResponse;
+import foongdoll.portfolio.aboutfoongdoll.experience.dto.ExperienceDisplayItem;
 import foongdoll.portfolio.aboutfoongdoll.experience.dto.ExperienceRequest;
 import foongdoll.portfolio.aboutfoongdoll.experience.dto.ExperienceSectionMetadata;
 import foongdoll.portfolio.aboutfoongdoll.experience.entity.Experience;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,8 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ExperienceServiceImpl implements ExperienceService {
-
-    private static final String HEADER_TEMPLATE = "<h2 class='text-2xl font-bold'>경험</h2>";
 
     private final ExperienceRepository experienceRepository;
     private final CompanyRepository companyRepository;
@@ -115,65 +116,20 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     private SectionResponse buildSection(List<Experience> experiences) {
-        String header = HEADER_TEMPLATE;
-        String content = buildContent(experiences);
-        String footer = buildFooter(experiences);
+        List<ExperienceRequest> forms = experiences.stream()
+                .map(this::toForm)
+                .collect(Collectors.toList());
+        List<ExperienceDisplayItem> timeline = experiences.stream()
+                .map(this::toDisplay)
+                .collect(Collectors.toList());
 
         return SectionResponse.builder()
-                .header(header)
-                .content(content)
-                .footer(footer)
                 .metadata(ExperienceSectionMetadata.builder()
-                        .experiences(experiences.stream()
-                                .map(this::toForm)
-                                .collect(Collectors.toList()))
+                        .experiences(forms)
+                        .timeline(timeline)
                         .build())
                 .build();
     }
-
-    private String buildContent(List<Experience> experiences) {
-        StringBuilder b = new StringBuilder();
-        b.append("<div class='space-y-8'>");
-
-        for (Experience e : experiences) {
-            b.append("<article class='relative sm:pl-8'>");
-
-            // 타임라인 점 (sm 이상에서만)
-            b.append("<span class='hidden sm:block absolute left-0 top-6 h-3 w-3 rounded-full bg-sky-400 ring-4 ring-sky-100 shadow'></span>");
-
-            // 카드
-            b.append("<div class='rounded-2xl border border-neutral-200 bg-white/90 p-5 sm:p-6 shadow-[0_1px_12px_rgba(0,0,0,0.05)]'>");
-
-            // 헤더(제목/회사/기간/역할)
-            if (has(e.getName())) {
-                b.append(String.format("<h3 class='text-xl font-semibold tracking-tight text-neutral-900'>%s</h3>", safe(e.getName())));
-            }
-            if (e.getCompany()!=null && has(e.getCompany().getName())) {
-                b.append(String.format("<p class='mt-1 text-[13px] text-neutral-500'>%s</p>", safe(e.getCompany().getName())));
-            }
-            if (has(e.getPeriod())) {
-                b.append(String.format("<p class='mt-1 text-[12px] uppercase tracking-wide text-neutral-400'>%s</p>", safe(e.getPeriod())));
-            }
-            if (has(e.getRole())) {
-                b.append(String.format(
-                        "<div class='mt-3'><span class='inline-flex items-center rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700'>%s</span></div>",
-                        safe(e.getRole())
-                ));
-            }
-
-            // 섹션: 기술 스택(칩), 키워드(칩), 상세(불릿)
-            appendChips(b, "기술 스택", e.getTechStack());
-            appendChips(b, "키워드",   e.getKeywords());
-            appendBullets(b, "상세",    e.getDetails());
-
-            b.append("</div>");     // 카드 끝
-            b.append("</article>");
-        }
-
-        b.append("</div>");
-        return b.toString();
-    }
-
 
     private ExperienceRequest toForm(Experience experience) {
         ExperienceRequest form = new ExperienceRequest();
@@ -199,61 +155,62 @@ public class ExperienceServiceImpl implements ExperienceService {
         return form;
     }
 
-    private String buildFooter(List<Experience> experiences) {
-//        List<String> companyNames = experiences.stream()
-//                .map(Experience::getCompany)
-//                .filter(company -> company != null && StringUtils.hasText(company.getName()))
-//                .map(company -> company.getName())
-//                .distinct()
-//                .collect(Collectors.toList());
-//
-//        if (companyNames.isEmpty()) {
-//            return String.format("<small class='block mt-6 text-neutral-500'>총 %d건의 경험</small>", experiences.size());
-//        }
-//
-//        String joined = String.join(", ", companyNames);
-//        return String.format("<small class='block mt-6 text-neutral-500'>%s 등 총 %d건의 경험</small>", joined, experiences.size());
-        return "";
-    }
+    private ExperienceDisplayItem toDisplay(Experience experience) {
+        ExperienceDisplayItem.ExperienceDisplayItemBuilder builder = ExperienceDisplayItem.builder()
+                .experienceCode(experience.getExperienceCode())
+                .title(experience.getName())
+                .period(experience.getPeriod())
+                .role(experience.getRole())
+                .techStacks(splitTags(experience.getTechStack()))
+                .keywords(splitTags(experience.getKeywords()))
+                .details(splitDetails(experience.getDetails()));
 
-    private void appendChips(StringBuilder b, String label, String raw) {
-        if (!has(raw)) return;
-
-        b.append(String.format("<h4 class='mt-6 mb-2 text-sm font-semibold text-neutral-700'>%s</h4>", safe(label)));
-        b.append("<div class='flex flex-wrap gap-2'>");
-
-        for (String t : raw.split("[,;\\n]")) {
-            String tag = t.trim();
-            if (!has(tag)) continue;
-            b.append("<span class='inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs text-neutral-700'>")
-                    .append(safe(tag))
-                    .append("</span>");
+        if (experience.getCompany() != null) {
+            builder.companyName(experience.getCompany().getName());
+            builder.companyDepartment(experience.getCompany().getDepartment());
+            builder.companyPosition(experience.getCompany().getPosition());
+            builder.companyIndustry(experience.getCompany().getIndustry());
         }
-        b.append("</div>");
+
+        return builder.build();
     }
 
-    private void appendBullets(StringBuilder b, String label, String raw) {
-        if (!has(raw)) return;
-
-        b.append(String.format("<h4 class='mt-6 mb-2 text-sm font-semibold text-neutral-700'>%s</h4>", safe(label)));
-        b.append("<ul class='mt-1 space-y-2'>");
-
-        for (String line : raw.split("\\n")) {
-            String item = line.trim();
-            if (!has(item)) continue;
-            b.append("<li class='relative pl-5 text-[15px] leading-relaxed text-neutral-800 break-words'>")
-                    .append("<span class='absolute left-0 top-2 h-1.5 w-1.5 rounded-full bg-sky-400'></span>")
-                    .append(safe(item))
-                    .append("</li>");
+    private List<String> splitTags(String raw) {
+        if (!has(raw)) {
+            return Collections.emptyList();
         }
-        b.append("</ul>");
+
+        return Arrays.stream(raw.split("[,;\\n]"))
+                .map(String::trim)
+                .filter(this::has)
+                .collect(Collectors.toList());
     }
 
-    private boolean has(String s) { return s != null && !s.isBlank(); }
+    private List<String> splitDetails(String raw) {
+        if (!has(raw)) {
+            return Collections.emptyList();
+        }
 
-    private String safe(String s) {
-        if (s == null) return "";
-        return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-                .replace("\"","&quot;").replace("'","&#39;");
+        return Arrays.stream(raw.split("\\R"))
+                .map(this::normalizeBullet)
+                .filter(this::has)
+                .collect(Collectors.toList());
+    }
+
+    private String normalizeBullet(String line) {
+        if (line == null) {
+            return "";
+        }
+        String trimmed = line.trim();
+        if (!has(trimmed)) {
+            return "";
+        }
+
+        String cleaned = trimmed.replaceFirst("^[\\-•*\\u2022\\u2023\\u25E6\\u2219\\u2043\\u00B7\\u25AA\\u25C6\\s]+", "");
+        return cleaned.trim();
+    }
+
+    private boolean has(String value) {
+        return value != null && !value.isBlank();
     }
 }

@@ -16,4 +16,5 @@ import java.util.List;
 public class ExperienceSectionMetadata {
 
     private List<ExperienceRequest> experiences;
+    private List<ExperienceDisplayItem> timeline;
 }

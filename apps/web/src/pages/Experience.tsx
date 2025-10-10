@@ -22,12 +22,41 @@ type ExperienceFormValues = {
   details: string;
 };
 
+type ExperienceDisplayItem = {
+  experienceCode?: string | null;
+  title?: string | null;
+  companyName?: string | null;
+  companyDepartment?: string | null;
+  companyPosition?: string | null;
+  companyIndustry?: string | null;
+  period?: string | null;
+  role?: string | null;
+  techStacks?: Array<string | null> | null;
+  keywords?: Array<string | null> | null;
+  details?: Array<string | null> | null;
+};
+
+type TimelineExperience = {
+  id: string;
+  title: string;
+  companyName?: string;
+  companyDepartment?: string;
+  companyPosition?: string;
+  companyIndustry?: string;
+  period?: string;
+  role?: string;
+  techStacks: string[];
+  keywords: string[];
+  details: string[];
+};
+
 type ExperienceMetadata = {
   experiences?: Array<
     Partial<ExperienceFormValues> & {
       companySalary?: number | string | null;
     }
   > | null;
+  timeline?: ExperienceDisplayItem[] | null;
 };
 
 type ExperienceSectionPayload = SectionPayload & {
@@ -79,6 +108,40 @@ const coerceExperienceForm = (
   });
 };
 
+const BULLET_PREFIX = /^[\-\*\u2022\u2023\u25E6\u2219\u2043\u00B7\u25AA\u25C6]+\s*/;
+
+const parseDelimitedList = (value?: string | null): string[] =>
+  value
+    ? value
+        .split(/[,;\n]/)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+    : [];
+
+const stripBullet = (line: string): string => (line ? line.replace(BULLET_PREFIX, "").trim() : "");
+
+const parseDetailList = (value?: string | null): string[] =>
+  value
+    ? value
+        .split(/\r?\n/)
+        .map((detail) => stripBullet(detail.trim()))
+        .filter((detail) => detail.length > 0)
+    : [];
+
+const ensureStringArray = (
+  value: unknown,
+  transform: (item: string) => string = (item) => item,
+): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => (typeof item === "string" ? transform(item) : ""))
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+};
+
 const Experience = () => {
   const [searchParams] = useSearchParams();
   const companyParam = searchParams.get("company");
@@ -95,6 +158,7 @@ const Experience = () => {
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
   const loadExperience = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -118,16 +182,19 @@ const Experience = () => {
             >
           ).map((exp) => coerceExperienceForm(exp));
           setExperienceForms(rawExperiences);
+          setExpandedCode(null);
           setInfoMessage(null);
         } else {
           setSection(null);
           setExperienceForms([]);
-          setInfoMessage(response.message || "등록된 경력 기록이 없습니다.");
+          setExpandedCode(null);
+          setInfoMessage(response.message || "기록된 경력이 없습니다.");
         }
       } catch (err) {
         console.error(err);
         setSection(null);
         setExperienceForms([]);
+        setExpandedCode(null);
         setError("경력 정보를 불러오는 중 오류가 발생했어요.");
       } finally {
         if (!silent) {
@@ -165,7 +232,63 @@ const Experience = () => {
     }
   }, [loading, isAuthorized, section, experienceForms.length, company]);
 
-  const projectCount = experienceForms.length;
+  const experienceTimeline = useMemo<TimelineExperience[]>(() => {
+    const metadata = section?.metadata as ExperienceMetadata | undefined;
+    const rawTimeline = Array.isArray(metadata?.timeline) ? metadata.timeline : null;
+
+    const baseTimeline: ExperienceDisplayItem[] =
+      rawTimeline && rawTimeline.length > 0
+        ? rawTimeline
+        : experienceForms.map((form) => ({
+            experienceCode: form.experienceCode,
+            title: form.name,
+            companyName: form.companyName,
+            companyDepartment: form.companyDepartment,
+            companyPosition: form.companyPosition,
+            companyIndustry: form.companyIndustry,
+            period: form.period,
+            role: form.role,
+            techStacks: parseDelimitedList(form.techStack),
+            keywords: parseDelimitedList(form.keywords),
+            details: parseDetailList(form.details),
+          }));
+
+    return baseTimeline.map((item, index) => {
+      const code = typeof item.experienceCode === "string" ? item.experienceCode.trim() : "";
+      const id = code.length > 0 ? code : `experience-${index}`;
+      const title =
+        typeof item.title === "string" && item.title.trim().length > 0
+          ? item.title.trim()
+          : "이름 없는 프로젝트";
+
+      const normalized: TimelineExperience = {
+        id,
+        title,
+        companyName: item.companyName?.trim() || undefined,
+        companyDepartment: item.companyDepartment?.trim() || undefined,
+        companyPosition: item.companyPosition?.trim() || undefined,
+        companyIndustry: item.companyIndustry?.trim() || undefined,
+        period: item.period?.trim() || undefined,
+        role: item.role?.trim() || undefined,
+        techStacks: ensureStringArray(item.techStacks),
+        keywords: ensureStringArray(item.keywords),
+        details: ensureStringArray(item.details, stripBullet),
+      };
+
+      return normalized;
+    });
+  }, [section, experienceForms]);
+
+  useEffect(() => {
+    if (!expandedCode) {
+      return;
+    }
+    if (!experienceTimeline.some((item) => item.id === expandedCode)) {
+      setExpandedCode(null);
+    }
+  }, [expandedCode, experienceTimeline]);
+
+  const projectCount = experienceTimeline.length;
 
   const selectedCompanyName = useMemo(() => {
     const names = experienceForms
@@ -176,8 +299,7 @@ const Experience = () => {
 
   const summaryText = company
     ? `${selectedCompanyName ?? "선택한 회사"} 프로젝트 ${projectCount}건`
-    : "모든 회사에서 진행한 주요 프로젝트와 역할을 모았습니다.";
-
+    : "여러 회사에서 진행한 주요 프로젝트를 한 곳에 모았습니다.";
   const formVisible = !section || editorExpanded;
 
   const handleExperienceChange = (index: number, field: keyof ExperienceFormValues, value: string) => {
@@ -343,34 +465,160 @@ const Experience = () => {
         <Card
           Header={
             <div className="experience-heading">
-              <span className="experience-heading__label">Notebook Experience</span>
+              <span className="experience-heading__label">Experience Library</span>
               <h1 className="experience-heading__title">프로젝트 로그</h1>
               <p className="experience-heading__summary">{summaryText}</p>
             </div>
           }
           Content={
-            <div className="experience-paper">
-              {section.header && (
-                <section className="experience-block experience-block--header">
+            <div className="not-prose">
+              {experienceTimeline.length === 0 ? (
+                section?.content ? (
                   <div
-                    className="experience-richtext"
-                    dangerouslySetInnerHTML={{ __html: section.header ?? "" }}
+                    className="space-y-4 text-sm leading-relaxed text-neutral-600"
+                    dangerouslySetInnerHTML={{ __html: section?.content ?? "" }}
                   />
-                </section>
-              )}
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/80 p-8 text-center text-sm text-neutral-500">
+                    기록된 경험이 아직 없어요.
+                  </div>
+                )
+              ) : (
+                <div className="relative">
+                  <div className="absolute left-3 top-6 bottom-6 hidden w-px bg-neutral-200 sm:block" />
+                  <div className="space-y-5">
+                    {experienceTimeline.map((item, index) => {
+                      const detailId = `experience-${index}-details`;
+                      const isExpanded = expandedCode === item.id;
+                      const companyLineParts = [item.companyName, item.companyDepartment, item.companyPosition].filter(
+                        (value): value is string => Boolean(value && value.trim().length > 0),
+                      );
+                      const companyLine = companyLineParts.join(" · ");
 
-              {section.content && (
-                <section className="experience-block experience-block--timeline">
-                  <div
-                    className="experience-timeline"
-                    dangerouslySetInnerHTML={{ __html: section.content ?? "" }}
-                  />
-                </section>
-              )}
+                      return (
+                        <article key={item.id} className="relative sm:pl-8">
+                          <span className="absolute left-0 top-6 hidden h-3 w-3 -translate-x-1/2 rounded-full bg-sky-400 shadow-[0_0_0_4px_rgba(56,189,248,0.25)] sm:block" />
+                          <div className="rounded-2xl border border-neutral-200 bg-white/95 p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md sm:p-6">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedCode((prev) => (prev === item.id ? null : item.id))}
+                              aria-expanded={isExpanded}
+                              aria-controls={detailId}
+                              className="flex w-full items-center justify-between gap-4 text-left"
+                            >
+                              <div className="flex flex-col gap-1">
+                                <h3 className="text-base font-semibold text-neutral-900">{item.title}</h3>
+                                <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+                                  {companyLine && <span>{companyLine}</span>}
+                                  {item.period && (
+                                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-neutral-600">
+                                      {item.period}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <span
+                                className={`flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-neutral-600 transition-all ${
+                                  isExpanded ? "rotate-180 border-sky-200 bg-sky-50 text-sky-600" : ""
+                                }`}
+                              >
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                >
+                                  <path
+                                    d="M4 6l4 4 4-4"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                            </button>
 
-              {section.footer && (
-                <div className="experience-note-footer">
-                  <div dangerouslySetInnerHTML={{ __html: section.footer ?? "" }} />
+                            <div
+                              id={detailId}
+                              className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
+                                isExpanded ? "mt-5 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                              }`}
+                              aria-hidden={!isExpanded}
+                            >
+                              <div className="overflow-hidden">
+                                <div className="space-y-5 rounded-2xl bg-neutral-50/80 p-5">
+                                  {item.role && (
+                                    <div className="flex flex-wrap gap-2">
+                                      <span className="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
+                                        {item.role}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {(item.companyIndustry || item.techStacks.length > 0 || item.keywords.length > 0) && (
+                                    <div className="grid gap-4 text-sm text-neutral-600">
+                                      {item.companyIndustry && (
+                                        <div className="flex flex-col gap-1">
+                                          <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Industry</span>
+                                          <span>{item.companyIndustry}</span>
+                                        </div>
+                                      )}
+
+                                      {item.techStacks.length > 0 && (
+                                        <div className="flex flex-col gap-2">
+                                          <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Tech Stack</span>
+                                          <div className="flex flex-wrap gap-2">
+                                            {item.techStacks.map((stack) => (
+                                              <span
+                                                key={`${item.id}-stack-${stack}`}
+                                                className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 shadow-sm"
+                                              >
+                                                {stack}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {item.keywords.length > 0 && (
+                                        <div className="flex flex-col gap-2">
+                                          <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Keyword</span>
+                                          <div className="flex flex-wrap gap-2">
+                                            {item.keywords.map((keyword) => (
+                                              <span
+                                                key={`${item.id}-keyword-${keyword}`}
+                                                className="rounded-lg border border-neutral-200 bg-neutral-100/70 px-2 py-1 text-xs text-neutral-600"
+                                              >
+                                                {keyword}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {item.details.length > 0 && (
+                                    <ul className="space-y-2 text-sm leading-relaxed text-neutral-700">
+                                      {item.details.map((detail, detailIndex) => (
+                                        <li key={`${item.id}-detail-${detailIndex}`} className="relative pl-5">
+                                          <span className="absolute left-1 top-2 h-1.5 w-1.5 rounded-full bg-sky-400" />
+                                          <span>{detail}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -639,6 +887,3 @@ const Experience = () => {
 };
 
 export default Experience;
-
-
-
