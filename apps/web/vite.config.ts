@@ -16,5 +16,5 @@ export default defineConfig({
   },
 })
 
-//  target: 'http://54.180.149.30:8080',
+//  target: 'http://3.38.237.211:8080',
 //  target: 'http://localhost:8080',

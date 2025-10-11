@@ -12,7 +12,6 @@ import java.util.Arrays;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Value("${app.cors.allowed-origins:http://3.38.237.211,http://localhost:8080}")
-//    @Value("${app.cors.allowed-origins:http://localhost:5173}")
     private String allowedOriginsProperty;
 
     @Override

@@ -171,7 +171,7 @@ const Resume = () => {
   const highlightBadges = useMemo<string[]>(() => {
     if (!formValues.skills.trim()) return [];
     return formValues.skills
-      .split(/[,;\n]/)
+      .split(/[;,\n]/)
       .map((token) => token.trim())
       .filter(Boolean);
   }, [formValues.skills]);
@@ -326,7 +326,7 @@ const Resume = () => {
                 </div>
               )}
               {summary && (
-                <p className="resume-heading__summary">
+                <p className="resume-heading__summary whitespace-pre-line leading-relaxed break-words">
                   {summary}
                 </p>
               )}
@@ -343,7 +343,7 @@ const Resume = () => {
                       const entry = (
                         <span className="resume-contact-card__item">
                           <Icon className="resume-contact-card__icon" />
-                          <span className="resume-contact-card__value">{item.value}</span>
+                          <span className="resume-contact-card__value break-words">{item.value}</span>
                         </span>
                       );
 
@@ -363,11 +363,11 @@ const Resume = () => {
                 </aside>
               )}
 
-              <div className="resume-paper">
+              <div className="resume-paper space-y-8">
                 {section.header && (
                   <section className="resume-block">
                     <div
-                      className="resume-richtext"
+                      className="resume-richtext whitespace-pre-line break-words leading-relaxed space-y-3"
                       dangerouslySetInnerHTML={{ __html: section.header ?? "" }}
                     />
                   </section>
@@ -376,7 +376,7 @@ const Resume = () => {
                 {section.content && (
                   <section className="resume-block">
                     <div
-                      className="resume-richtext"
+                      className="resume-richtext whitespace-pre-line break-words leading-relaxed space-y-3"
                       dangerouslySetInnerHTML={{ __html: section.content ?? "" }}
                     />
                   </section>
@@ -384,7 +384,10 @@ const Resume = () => {
 
                 {section.footer && (
                   <div className="resume-note-footer">
-                    <div dangerouslySetInnerHTML={{ __html: section.footer ?? "" }} />
+                    <div
+                      className="whitespace-pre-line break-words leading-relaxed space-y-2"
+                      dangerouslySetInnerHTML={{ __html: section.footer ?? "" }}
+                    />
                   </div>
                 )}
               </div>
@@ -486,7 +489,7 @@ const Resume = () => {
                     value={formValues.summary}
                     onChange={(e) => handleFieldChange("summary", e.target.value)}
                     className="min-h-[96px] rounded-xl border border-neutral-300 bg-white px-3 py-3 text-sm text-neutral-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
-                    placeholder="간단한 소개를 적어 주세요."
+                    placeholder="간단한 소개를 적어 주세요. 줄바꿈은 표시됩니다."
                   />
                 </label>
 
@@ -506,7 +509,7 @@ const Resume = () => {
                     value={formValues.experiences}
                     onChange={(e) => handleFieldChange("experiences", e.target.value)}
                     className="min-h-[120px] rounded-xl border border-neutral-300 bg-white px-3 py-3 text-sm text-neutral-800 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
-                    placeholder="회사명 - 역할 - 기간..."
+                    placeholder="회사명 - 역할 - 기간... 한 줄에 하나씩"
                   />
                 </label>
 
